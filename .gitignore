@@ -9,7 +9,7 @@
 # .tfvars files
 *.tfvars
 
-HELP.md
-
 id_rsa
 .idea
+
+HELP.md
