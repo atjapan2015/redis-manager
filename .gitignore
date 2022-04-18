@@ -1,8 +1,15 @@
-terraform.tfvars
-terraform.tfstate
-terraform.tfstate.backup
+#  Local .terraform directories
+**/.terraform/*
+.terraform.lock.hcl
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# .tfvars files
+*.tfvars
+
+HELP.md
 
 id_rsa
 .idea
-.terraform
-.terraform.lock.hcl

@@ -40,10 +40,10 @@ output "dynamic_group_redis_dynamic_group" {
   value = oci_identity_dynamic_group.redis_dynamic_group.name
 }
 
-output "virtual_network_redis_vcn" {
+output "virtual_network_redis_vcn_id" {
   value = oci_core_virtual_network.redis_vcn.id
 }
 
-output "subnet_redis_subnet" {
+output "subnet_redis_subnet_id" {
   value = oci_core_subnet.redis_subnet.id
 }

@@ -12,7 +12,9 @@ resource "oci_core_security_list" "redis_securitylist" {
   vcn_id         = oci_core_virtual_network.redis_vcn.id
   display_name   = "${var.redis_prefix}_securitylist"
 
-  defined_tags = {"${oci_identity_tag_namespace.redis_manager_tag_namespace.name}.${oci_identity_tag.redis_manager_tag.name}" = var.release }
+  defined_tags = {
+    "${oci_identity_tag_namespace.redis_manager_tag_namespace.name}.${oci_identity_tag.redis_manager_tag.name}" = var.release
+  }
 
   egress_security_rules {
     protocol    = local.tcp_protocol
@@ -60,12 +62,46 @@ resource "oci_core_security_list" "redis_securitylist" {
   }
 
   ingress_security_rules {
-    protocol = local.tcp_protocol
-    source   = local.anywhere
+    protocol    = local.tcp_protocol
+    source      = local.anywhere
+    description = "redis insight"
 
     tcp_options {
       max = "8001"
       min = "8001"
+    }
+  }
+
+  ingress_security_rules {
+    protocol    = local.tcp_protocol
+    source      = local.anywhere
+    description = "prometheus"
+
+    tcp_options {
+      max = "9090"
+      min = "9090"
+    }
+  }
+
+  ingress_security_rules {
+    protocol    = local.tcp_protocol
+    source      = local.anywhere
+    description = "redis exporter"
+
+    tcp_options {
+      max = "9121"
+      min = "9121"
+    }
+  }
+
+  ingress_security_rules {
+    protocol    = local.tcp_protocol
+    source      = local.anywhere
+    description = "grafana"
+
+    tcp_options {
+      max = "3000"
+      min = "3000"
     }
   }
 }
