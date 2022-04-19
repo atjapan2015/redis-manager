@@ -27,7 +27,7 @@ variable "redis_prefix" {
 }
 
 variable "redis_version" {
-  default = "5.0.7"
+  default = "5.0.9"
 }
 
 variable "redis_port1" {
@@ -46,6 +46,10 @@ variable "ssh_public_key" {
   default = ""
 }
 
+variable "global_password" {
+  default = ""
+}
+
 variable "instance_os" {
   description = "Operating system for compute instances"
   default     = "Oracle Linux"
@@ -61,13 +65,12 @@ variable "instance_shape" {
   default     = "VM.Standard3.Flex"
 }
 
-
 variable "instance_flex_shape_ocpus" {
-    default = 1
+  default = 1
 }
 
 variable "instance_flex_shape_memory" {
-    default = 8
+  default = 8
 }
 
 # Dictionary Locals

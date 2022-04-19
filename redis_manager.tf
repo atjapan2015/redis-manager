@@ -5,6 +5,7 @@ data "template_file" "setup_script" {
   template = file("./scripts/setup.tpl")
   vars = {
     ssh_public_key = tls_private_key.public_private_key_pair.public_key_openssh
+    global_password = var.global_password
   }
 }
 

@@ -32,6 +32,17 @@ resource "oci_core_security_list" "redis_securitylist" {
   }
 
   ingress_security_rules {
+    protocol    = local.tcp_protocol
+    source      = local.anywhere
+    description = "rancher"
+
+    tcp_options {
+      max = "443"
+      min = "443"
+    }
+  }
+
+  ingress_security_rules {
     protocol = local.tcp_protocol
     source   = local.anywhere
 

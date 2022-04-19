@@ -15,6 +15,16 @@ output "ssh_to_redis_manager" {
   value       = "ssh -i id_rsa opc@${data.oci_core_vnic.redis_manager_vnic.public_ip_address}"
 }
 
+output "rancher_url" {
+  description = "rancher url"
+  value       = "https://${data.oci_core_vnic.redis_manager_vnic.public_ip_address}:443"
+}
+
+output "grafana_url" {
+  description = "grafana url"
+  value       = "http://${data.oci_core_vnic.redis_manager_vnic.public_ip_address}:3000"
+}
+
 output "redis_insight_url" {
   description = "redis insight url"
   value       = "http://${data.oci_core_vnic.redis_manager_vnic.public_ip_address}:8001"
