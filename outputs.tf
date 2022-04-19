@@ -11,8 +11,8 @@ output "redis_manager_public_ip_address" {
 }
 
 output "ssh_to_redis_manager" {
-  description = "convenient command to ssh to the redis_manager host"
-  value       = "ssh -i id_rsa opc@${data.oci_core_vnic.redis_manager_vnic.public_ip_address}"
+  description = "convenient command to ssh to the redismanager host"
+  value       = "ssh -i id_rsa -o ServerAliveInterval=10 opc@${data.oci_core_vnic.redis_manager_vnic.public_ip_address}"
 }
 
 output "rancher_url" {
