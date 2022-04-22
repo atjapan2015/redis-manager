@@ -39,26 +39,34 @@ firewall-offline-cmd  --zone=public --add-port=8001/tcp
 systemctl restart firewalld
 mkdir -p /home/opc/redisinsight/db
 chown -R 1001 /home/opc/redisinsight/db
-docker run -d --name redis-insight --network=host --restart=unless-stopped -v /home/opc/redisinsight/db:/db -p 8001:8001 redislabs/redisinsight:1.11.1
-# docker run -d --name redis-insight --restart=always -v /home/opc/redisinsight/db:/db -p 8001:8001 redislabs/redisinsight:latest
 
-echo "install kubectl"
-curl -LO https://dl.k8s.io/release/v1.22.7/bin/linux/amd64/kubectl
-install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+docker run -d --name redis-insight --cap-add ipc_lock --network=host --restart=unless-stopped -v /home/opc/redisinsight/db:/db redislabs/redisinsight:vulnerability-fix-apr-22
+# docker run -d --name redis-insight  --cap-add ipc_lock --restart=always -v /home/opc/redisinsight/db:/db -p 8001:8001 redislabs/redisinsight:latest
 
-echo "install rancher"
-firewall-offline-cmd  --zone=public --add-port=443/tcp
+echo "install redis insight v2..."
+firewall-offline-cmd  --zone=public --add-port=5000/tcp
 systemctl restart firewalld
-mkdir -p /home/opc/rancher/main
-mkdir -p /home/opc/rancher/data
-mkdir -p /home/opc/rancher/auditlog
-docker run --privileged -d --name=rancher --network=host --restart=unless-stopped -v /home/opc/rancher/main:/var/lib/rancher -v /home/opc/rancher/data:/var/lib/rancher-data -v /home/opc/rancher/auditlog:/var/log/auditlog -e AUDIT_LEVEL=1 -e CATTLE_BOOTSTRAP_PASSWORD=${global_password} rancher/rancher:v2.6.4
-# docker run --privileged -d --name=rancher --network=host --restart=unless-stopped -p 80:80 -p 443:443 -v /home/opc/rancher/main:/var/lib/rancher -v /home/opc/rancher/data:/var/lib/rancher-data -v /home/opc/rancher/auditlog:/var/log/auditlog -e AUDIT_LEVEL=1 -e CATTLE_BOOTSTRAP_PASSWORD=${global_password} rancher/rancher:stable
+mkdir -p /home/opc/redisinsight-v2/db
+docker run -d --name redis-insight-v2 --cap-add ipc_lock --network=host --restart=unless-stopped -v /home/opc/redisinsight-v2/db:/root/.redisinsight-v2 atjapan2015/redisinsight:2.0.5
+
+#echo "install kubectl"
+#curl -LO https://dl.k8s.io/release/v1.22.7/bin/linux/amd64/kubectl
+#install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+#echo "install rancher"
+#firewall-offline-cmd  --zone=public --add-port=443/tcp
+#systemctl restart firewalld
+#mkdir -p /home/opc/rancher/main
+#mkdir -p /home/opc/rancher/data
+#mkdir -p /home/opc/rancher/auditlog
+#docker run --privileged -d --name=rancher --network=host --restart=unless-stopped -v /home/opc/rancher/main:/var/lib/rancher -v /home/opc/rancher/data:/var/lib/rancher-data -v /home/opc/rancher/auditlog:/var/log/auditlog -e AUDIT_LEVEL=1 -e CATTLE_BOOTSTRAP_PASSWORD=${global_password} rancher/rancher:v2.6.4
+## docker run --privileged -d --name=rancher --network=host --restart=unless-stopped -p 80:80 -p 443:443 -v /home/opc/rancher/main:/var/lib/rancher -v /home/opc/rancher/data:/var/lib/rancher-data -v /home/opc/rancher/auditlog:/var/log/auditlog -e AUDIT_LEVEL=1 -e CATTLE_BOOTSTRAP_PASSWORD=${global_password} rancher/rancher:stable
 
 echo "install prometheus"
 firewall-offline-cmd --zone=public --add-port=9090/tcp
 systemctl restart firewalld
 mkdir -p /home/opc/prometheus/data
+mkdir -p /home/opc/prometheus/data/sd_configs/redis
 cat << EOF > /home/opc/prometheus/data/prometheus.yml
 # my global config
 global:
@@ -94,7 +102,7 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
 
-# scrape Redis Enterprise
+# scrape Redis
   - job_name: redis
     scrape_interval: 30s
     scrape_timeout: 30s
@@ -102,12 +110,20 @@ scrape_configs:
     scheme: http
     tls_config:
       insecure_skip_verify: true
-    static_configs:
-      - targets: ["redis0:9121", "redis1:9121", "redis2:9121", "redis3:9121", "redis4:9121", "redis5:9121", "redis6:9121", "redis7:9121", "redis8:9121", "redis9:9121", "redis10:9121", "redis11:9121", "redis12:9121", "redis13:9121", "redis14:9121", "redis15:9121", "redis16:9121", "redis17:9121", "redis18:9121", "redis19:9121", "redis20:9121", "redis21:9121", "redis22:9121", "redis23:9121", "redis24:9121", "redis25:9121", "redis26:9121", "redis27:9121", "redis28:9121", "redis29:9121", "redis30:9121", "redis31:9121", "redis32:9121", "redis33:9121", "redis34:9121", "redis35:9121", "redis36:9121", "redis37:9121", "redis38:9121", "redis39:9121", "redis40:9121", "redis41:9121", "redis42:9121", "redis43:9121", "redis44:9121", "redis45:9121", "redis46:9121", "redis47:9121", "redis48:9121", "redis49:9121", "redis50:9121"]
+    file_sd_configs:
+    - files:
+      - 'sd_configs/redis/*.json'
 EOF
+
 chown -R 65534 /home/opc/prometheus/data
-docker run -d --name=prometheus --network=host --restart=unless-stopped -v /home/opc/prometheus/data/prometheus.yml:/etc/prometheus/prometheus.yml -p 9090:9090 prom/prometheus:v2.34.0
+chown -R 65534 /home/opc/prometheus/data/sd_configs/redis
+docker run -d --name=prometheus --network=host --restart=unless-stopped -v /home/opc/prometheus/data/prometheus.yml:/etc/prometheus/prometheus.yml -v /home/opc/prometheus/data/sd_configs/redis:/etc/prometheus/sd_configs/redis prom/prometheus:v2.34.0
 # docker run -d --name=prometheus --restart=always -p 9090:9090 prom/prometheus:latest
+
+echo "install prometheus"
+firewall-offline-cmd --zone=public --add-port=9091/tcp
+systemctl restart firewalld
+docker run -d --name=redis-prometheus --network=host --restart=unless-stopped -v /home/opc/prometheus/data/sd_configs/redis:/u01/data/sd_configs/redis -p 9091:9091 atjapan2015/redis-prometheus:latest
 
 # https://github.com/cloudalchemy/ansible-grafana ToDo
 echo "install grafana"
@@ -116,7 +132,7 @@ systemctl restart firewalld
 # https://grafana.com/docs/grafana/latest/administration/configure-docker/
 mkdir -p /home/opc/grafana/data
 chown -R 472 /home/opc/grafana/data
-docker run -d --name=grafana --network=host --restart=unless-stopped -e "GF_SECURITY_ADMIN_PASSWORD=${global_password}" -e "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel,redis-app" -v /home/opc/grafana/data:/var/lib/grafana -p 3000:3000 grafana/grafana:8.4.5
+docker run -d --name=grafana --network=host --restart=unless-stopped -e "GF_SECURITY_ADMIN_PASSWORD=${global_password}" -e "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel,redis-app" -v /home/opc/grafana/data:/var/lib/grafana grafana/grafana:8.4.5
 # docker run -d --name=grafana --restart=always -e "GF_SECURITY_ADMIN_PASSWORD=${global_password}" -e "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel,redis-app" -p 3000:3000 grafana/grafana:latest
 
 sleep 15

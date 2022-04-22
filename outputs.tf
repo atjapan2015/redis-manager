@@ -15,10 +15,10 @@ output "ssh_to_redis_manager" {
   value       = "ssh -i id_rsa -o ServerAliveInterval=10 opc@${data.oci_core_vnic.redis_manager_vnic.public_ip_address}"
 }
 
-output "rancher_url" {
-  description = "rancher url"
-  value       = "https://${data.oci_core_vnic.redis_manager_vnic.public_ip_address}:443"
-}
+#output "rancher_url" {
+#  description = "rancher url"
+#  value       = "https://${data.oci_core_vnic.redis_manager_vnic.public_ip_address}:443"
+#}
 
 output "grafana_url" {
   description = "grafana url"
@@ -28,6 +28,11 @@ output "grafana_url" {
 output "redis_insight_url" {
   description = "redis insight url"
   value       = "http://${data.oci_core_vnic.redis_manager_vnic.public_ip_address}:8001"
+}
+
+output "redis_insight_v2_url" {
+  description = "redis insight v2 url"
+  value       = "http://${data.oci_core_vnic.redis_manager_vnic.public_ip_address}:5000"
 }
 
 output "redis_manager_tag_namespace_name" {

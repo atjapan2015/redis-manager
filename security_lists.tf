@@ -75,6 +75,17 @@ resource "oci_core_security_list" "redis_securitylist" {
   ingress_security_rules {
     protocol    = local.tcp_protocol
     source      = local.anywhere
+    description = "redis insight v2"
+
+    tcp_options {
+      max = "5000"
+      min = "5000"
+    }
+  }
+
+  ingress_security_rules {
+    protocol    = local.tcp_protocol
+    source      = local.anywhere
     description = "redis insight"
 
     tcp_options {
@@ -91,6 +102,17 @@ resource "oci_core_security_list" "redis_securitylist" {
     tcp_options {
       max = "9090"
       min = "9090"
+    }
+  }
+
+  ingress_security_rules {
+    protocol    = local.tcp_protocol
+    source      = local.anywhere
+    description = "redis-prometheus"
+
+    tcp_options {
+      max = "9091"
+      min = "9091"
     }
   }
 
