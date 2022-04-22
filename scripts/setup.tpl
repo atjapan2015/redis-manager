@@ -33,21 +33,21 @@ systemctl enable --now docker
 docker info
 usermod -a -G docker opc
 
-echo "install redis insight ..."
-# https://hub.docker.com/r/redislabs/redisinsight/tags
-firewall-offline-cmd  --zone=public --add-port=8001/tcp
-systemctl restart firewalld
-mkdir -p /home/opc/redisinsight/db
-chown -R 1001 /home/opc/redisinsight/db
+#echo "install redis insight ..."
+## https://hub.docker.com/r/redislabs/redisinsight/tags
+#firewall-offline-cmd  --zone=public --add-port=8001/tcp
+#systemctl restart firewalld
+#mkdir -p /home/opc/redisinsight/db
+#chown -R 1001 /home/opc/redisinsight/db
 
-docker run -d --name redis-insight --cap-add ipc_lock --network=host --restart=unless-stopped -v /home/opc/redisinsight/db:/db redislabs/redisinsight:vulnerability-fix-apr-22
-# docker run -d --name redis-insight  --cap-add ipc_lock --restart=always -v /home/opc/redisinsight/db:/db -p 8001:8001 redislabs/redisinsight:latest
+#docker run -d --name redis-insight --cap-add ipc_lock --network=host --restart=unless-stopped -v /home/opc/redisinsight/db:/db redislabs/redisinsight:vulnerability-fix-apr-22
+## docker run -d --name redis-insight  --cap-add ipc_lock --restart=always -v /home/opc/redisinsight/db:/db -p 8001:8001 redislabs/redisinsight:latest
 
-echo "install redis insight v2..."
-firewall-offline-cmd  --zone=public --add-port=5000/tcp
-systemctl restart firewalld
-mkdir -p /home/opc/redisinsight-v2/db
-docker run -d --name redis-insight-v2 --cap-add ipc_lock --network=host --restart=unless-stopped -v /home/opc/redisinsight-v2/db:/root/.redisinsight-v2 atjapan2015/redisinsight:2.0.5
+#echo "install redis insight v2..."
+#firewall-offline-cmd  --zone=public --add-port=5000/tcp
+#systemctl restart firewalld
+#mkdir -p /home/opc/redisinsight-v2/db
+#docker run -d --name redis-insight-v2 --cap-add ipc_lock --network=host --restart=unless-stopped -v /home/opc/redisinsight-v2/db:/root/.redisinsight-v2 atjapan2015/redisinsight:2.0.5
 
 #echo "install kubectl"
 #curl -LO https://dl.k8s.io/release/v1.22.7/bin/linux/amd64/kubectl
